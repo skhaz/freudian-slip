@@ -1,2 +1,2 @@
 python-telegram-bot==13.15
-redis==4.5.4
+redis==4.6.0
