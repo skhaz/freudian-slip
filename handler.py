@@ -114,7 +114,7 @@ dispatcher.add_handler(CommandHandler("leaderboard", leaderboard))
 
 
 def telegram(event, context):
-    dispatcher.process_update(Update.de_json(event.body, bot))
+    dispatcher.process_update(Update.de_json(event["body"], bot))
 
     return {
         "statusCode": 200,
