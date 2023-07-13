@@ -32,7 +32,7 @@ functions:
       - http: POST /webhook
     vpc:
       securityGroupIds:
-        - "Fn::GetAtt": ServerlessSecurityGroup.GroupId
+        - "Fn::GetAtt": [ServerlessSecurityGroup, GroupId]
       subnetIds:
         - Ref: PrivateSubnetA
 
@@ -155,7 +155,7 @@ resources:
         CacheNodeType: ${self:custom.config.CACHE_INSTANCE_SIZE}
         NumCacheNodes: 1
         VpcSecurityGroupIds:
-          - "Fn::GetAtt": ServerlessStorageSecurityGroup.GroupId
+          - "Fn::GetAtt": [ServerlessStorageSecurityGroup, GroupId]
         CacheSubnetGroupName:
           Ref: ServerlessCacheSubnetGroup
 
