@@ -8,7 +8,7 @@ from telegram import Update
 from telegram.ext import CallbackContext
 from telegram.utils.helpers import escape_markdown
 
-penis = os.environ["PENIS"]
+p = os.environ["p"]
 
 redis_pool = ConnectionPool.from_url(os.environ["REDIS_DSN"])
 redis = Redis(connection_pool=redis_pool)
@@ -28,14 +28,14 @@ def meme(update: Update, context: CallbackContext) -> None:
     escaped_text = escape_markdown(text, version=2)
     length = len(escaped_text)
     indexes = []
-    for char in penis:
+    for char in p:
         begin = indexes[-1] if indexes else 0
         index = escaped_text[begin:length].lower().find(char)
         if index != -1:
             indexes.append(index + begin)
 
     in_sequence = any(indexes[i] + 1 == indexes[i + 1] for i in range(len(indexes) - 1))
-    is_equidistant = len(indexes) == len(penis)
+    is_equidistant = len(indexes) == len(p)
     if is_equidistant and not in_sequence:
         letters = [char for char in escaped_text]
         for i, index in enumerate(indexes):
@@ -49,14 +49,14 @@ def meme(update: Update, context: CallbackContext) -> None:
         user = message.from_user.name
 
         pipeline = redis.pipeline(transaction=False)
-        pipeline.incr(penis)
-        pipeline.incr(f"{penis}:count:{user_id}")
-        pipeline.set(f"{penis}:user:{user_id}", user)
+        pipeline.incr(p)
+        pipeline.incr(f"{p}:count:{user_id}")
+        pipeline.set(f"{p}:user:{user_id}", user)
         count, count_by_author, _ = pipeline.execute()
 
         caption = [
-            f"Hidden penis detected! {count} penises have been discovered so far. "
-            f"{user} has already worshiped the {penis} {count_by_author} time(s).",
+            f"Hidden {p} detected! {count} have been discovered so far. "
+            f"{user} has already worshiped the {p} {count_by_author} time(s).",
         ]
 
         messages = [
@@ -76,12 +76,3 @@ def hello(event, context):
     response = {"statusCode": 200, "body": json.dumps(body)}
 
     return response
-
-    # Use this code if you don't use the http event with the LAMBDA-PROXY
-    # integration
-    """
-    return {
-        "message": "Go Serverless v1.0! Your function executed successfully!",
-        "event": event
-    }
-    """
