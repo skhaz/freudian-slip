@@ -12,12 +12,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Cache Node Modules
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+
       - name: Use Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 18
 
-      - name: Install serverless
+      - name: Install Serverless Framework
         run: npm install -g serverless serverless-python-requirements
 
       - name: Deploy
