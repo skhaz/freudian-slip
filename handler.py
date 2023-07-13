@@ -63,7 +63,7 @@ def on_message(update: Update, context: CallbackContext) -> None:
         pipeline.set(f"{hidden}:user:{user_id}", user)
         pipeline.expire(f"{hidden}:count:{user_id}", one_year_in_seconds)
         pipeline.expire(f"{hidden}:user:{user_id}", one_year_in_seconds)
-        count, count_by_author, _, _, _ = pipeline.execute()
+        count, count_by_author, *_ = pipeline.execute()
 
         caption = [
             f"Hidden {hidden} detected! {count} have been discovered so far. "
