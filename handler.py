@@ -14,12 +14,12 @@ from telegram.ext import Filters
 from telegram.ext import MessageHandler
 from telegram.utils.helpers import escape_markdown
 
-word = os.environ["WORD"]
+bot = Bot(token=os.environ["TOKEN"])
 
 redis_pool = ConnectionPool.from_url(os.environ["REDIS_DSN"])
 redis = Redis(connection_pool=redis_pool)
 
-bot = Bot(token=os.environ["TOKEN"])
+word = os.environ["WORD"]
 
 
 def on_message(update: Update, context: CallbackContext) -> None:
