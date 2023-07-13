@@ -1,4 +1,4 @@
-service: hidden-p-detector-bot
+service: hidden-word-detector-bot
 
 frameworkVersion: "3"
 
