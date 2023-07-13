@@ -23,7 +23,7 @@ functions:
           path: /users/create
           method: get
     environment:
-      P: penis
+      PP: penis
 
 plugins:
   - serverless-python-requirements
