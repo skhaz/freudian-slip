@@ -1,0 +1,6 @@
+{
+  "private": true,
+  "devDependencies": {
+    "serverless": "^3.33.0"
+  }
+}
