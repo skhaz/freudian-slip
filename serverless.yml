@@ -163,9 +163,5 @@ resources:
         CacheSubnetGroupName:
           Ref: ServerlessCacheSubnetGroup
 
-package:
-  exclude:
-    - node_modules/**
-
 plugins:
   - serverless-python-requirements
