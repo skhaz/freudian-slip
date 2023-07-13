@@ -2,28 +2,23 @@ service: hidden-p-detector-bot
 
 frameworkVersion: "3"
 
+configValidationMode: error
+
 provider:
   name: aws
   runtime: python3.10
-
-# you can overwrite defaults here
-#  stage: dev
-#  region: us-east-1
-
-# package:
-#   patterns:
-#     - "handler.py"
-#     - "!./**"
+  architecture: arm64
+  stage: development
 
 functions:
   telegram:
     handler: handler.telegram
+    environment:
+      HIDDEN: penis
     events:
       - httpApi:
           path: /users/create
           method: get
-    environment:
-      PP: penis
 
 plugins:
   - serverless-python-requirements
