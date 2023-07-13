@@ -18,13 +18,10 @@ jobs:
           node-version: 18
           cache: npm
 
-      - name: Install Dependencies
-        run: npm install
-
       - name: Deploy
-        run: npm run deploy
+        run: npx serverless deploy
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          HIDDEN: ${{ secrets.HIDDEN }}
           TOKEN: ${{ secrets.TOKEN }}
+          WORD: ${{ secrets.WORD }}

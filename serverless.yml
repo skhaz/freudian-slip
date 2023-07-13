@@ -19,7 +19,7 @@ functions:
   telegram:
     handler: handler.telegram
     environment:
-      HIDDEN: ${env:HIDDEN}
+      WORD: ${env:WORD}
       TOKEN: ${env:TOKEN}
       REDIS_DSN:
         Fn::Join:

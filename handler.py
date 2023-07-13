@@ -14,7 +14,7 @@ from telegram.ext import Filters
 from telegram.ext import MessageHandler
 from telegram.utils.helpers import escape_markdown
 
-hidden = os.environ["HIDDEN"]
+word = os.environ["WORD"]
 
 redis_pool = ConnectionPool.from_url(os.environ["REDIS_DSN"])
 redis = Redis(connection_pool=redis_pool)
@@ -36,14 +36,14 @@ def on_message(update: Update, context: CallbackContext) -> None:
     escaped_text = escape_markdown(text, version=2)
     length = len(escaped_text)
     indexes = []
-    for char in hidden:
+    for char in word:
         begin = indexes[-1] if indexes else 0
         index = escaped_text[begin:length].lower().find(char)
         if index != -1:
             indexes.append(index + begin)
 
     in_sequence = any(indexes[i] + 1 == indexes[i + 1] for i in range(len(indexes) - 1))
-    is_equidistant = len(indexes) == len(hidden)
+    is_equidistant = len(indexes) == len(word)
     if is_equidistant and not in_sequence:
         letters = [char for char in escaped_text]
         for i, index in enumerate(indexes):
@@ -58,16 +58,16 @@ def on_message(update: Update, context: CallbackContext) -> None:
         one_year_in_seconds = 60 * 60 * 24 * 365
 
         pipeline = redis.pipeline(transaction=False)
-        pipeline.incr(hidden)
-        pipeline.incr(f"{hidden}:count:{user_id}")
-        pipeline.set(f"{hidden}:user:{user_id}", user)
-        pipeline.expire(f"{hidden}:count:{user_id}", one_year_in_seconds)
-        pipeline.expire(f"{hidden}:user:{user_id}", one_year_in_seconds)
+        pipeline.incr(word)
+        pipeline.incr(f"{word}:count:{user_id}")
+        pipeline.set(f"{word}:user:{user_id}", user)
+        pipeline.expire(f"{word}:count:{user_id}", one_year_in_seconds)
+        pipeline.expire(f"{word}:user:{user_id}", one_year_in_seconds)
         count, count_by_author, *_ = pipeline.execute()
 
         caption = [
-            f"Hidden {hidden} detected! {count} have been discovered so far. "
-            f"{user} has already worshiped the {hidden} {count_by_author} time(s).",
+            f"Hidden {word} detected! {count} have been discovered so far. "
+            f"{user} has already worshiped the {word} {count_by_author} time(s).",
         ]
 
         messages = [
@@ -90,7 +90,7 @@ def leaderboard(update: Update, context: CallbackContext) -> None:
 
     users = {
         key.decode().split(":")[2]: get_count(key)
-        for key in redis.scan_iter(f"{hidden}:count:*")
+        for key in redis.scan_iter(f"{word}:count:*")
     }
 
     sorted_users = sorted(users.items(), key=lambda x: x[1], reverse=True)[:10]
@@ -102,7 +102,7 @@ def leaderboard(update: Update, context: CallbackContext) -> None:
     )
 
     users = [
-        rf"\* [{get_username(f'{hidden}:user:{user[0]}')}](tg://user?id={user[0]}) worshipped the {hidden} {user[1]} times"  # noqa
+        rf"\* [{get_username(f'{word}:user:{user[0]}')}](tg://user?id={user[0]}) worshipped the {word} {user[1]} times"  # noqa
         for user in sorted_users
     ]
 
