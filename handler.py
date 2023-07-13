@@ -16,7 +16,7 @@ redis_pool = ConnectionPool.from_url(os.environ['REDIS_DSN'])
 redis = Redis(connection_pool=redis_pool)
 
 
-def meme(update: Update, context: CallbackContext) -> None:
+def on_message(update: Update, context: CallbackContext) -> None:
     message = update.message
 
     if not message:
@@ -70,6 +70,37 @@ def meme(update: Update, context: CallbackContext) -> None:
         ]
 
         message.reply_text("\n\n".join(messages), parse_mode=ParseMode.MARKDOWN_V2)
+
+
+def leaderboard(update: Update, context: CallbackContext) -> None:
+    message = update.message
+
+    if not message:
+        return
+
+    get_count = (
+        lambda key: int(value.decode()) if (value := redis.get(key)) is not None else 0
+    )
+
+    users = {
+        key.decode().split(":")[2]: get_count(key)
+        for key in redis.scan_iter(f"{hidden}:count:*")
+    }
+
+    sorted_users = sorted(users.items(), key=lambda x: x[1], reverse=True)[:10]
+
+    get_username = (
+        lambda key: username.decode()
+        if (username := redis.get(key)) is not None
+        else None
+    )
+
+    users = [
+        rf"\* [{get_username(f'{hidden}:user:{user[0]}')}](tg://user?id={user[0]}) worshipped the {hidden} {user[1]} times"
+        for user in sorted_users  # noqa
+    ]
+
+    message.reply_text("\n".join(users), parse_mode=ParseMode.MARKDOWN_V2)
 
 
 def telegram(event, context):
