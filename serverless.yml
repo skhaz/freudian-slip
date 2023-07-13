@@ -29,7 +29,7 @@ functions:
                 - ElasticCacheCluster
                 - RedisEndpoint.Address
     events:
-      - http: GET /webhook
+      - http: POST /webhook
     vpc:
       securityGroupIds:
         - Fn::GetAtt:

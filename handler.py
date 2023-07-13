@@ -1,19 +1,24 @@
-import json
 import os
+from queue import Queue
 
 from redis import ConnectionPool
 from redis import Redis
+from telegram import Bot
 from telegram import ParseMode
 from telegram import Update
 from telegram.ext import CallbackContext
+from telegram.ext import CommandHandler
+from telegram.ext import Dispatcher
+from telegram.ext import Filters
+from telegram.ext import MessageHandler
 from telegram.utils.helpers import escape_markdown
 
 hidden = os.environ["HIDDEN"]
 
-print("os.environ['REDIS_DSN']", os.environ['REDIS_DSN'])
-
-redis_pool = ConnectionPool.from_url(os.environ['REDIS_DSN'])
+redis_pool = ConnectionPool.from_url(os.environ["REDIS_DSN"])
 redis = Redis(connection_pool=redis_pool)
+
+bot = Bot(token=os.environ["TOKEN"])
 
 
 def on_message(update: Update, context: CallbackContext) -> None:
@@ -96,19 +101,21 @@ def leaderboard(update: Update, context: CallbackContext) -> None:
     )
 
     users = [
-        rf"\* [{get_username(f'{hidden}:user:{user[0]}')}](tg://user?id={user[0]}) worshipped the {hidden} {user[1]} times"
-        for user in sorted_users  # noqa
+        rf"\* [{get_username(f'{hidden}:user:{user[0]}')}](tg://user?id={user[0]}) worshipped the {hidden} {user[1]} times"  # noqa
+        for user in sorted_users
     ]
 
     message.reply_text("\n".join(users), parse_mode=ParseMode.MARKDOWN_V2)
 
 
+dispatcher = Dispatcher(bot=bot, update_queue=Queue())
+dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, on_message))
+dispatcher.add_handler(CommandHandler("leaderboard", leaderboard))
+
+
 def telegram(event, context):
-    body = {
-        "message": "Go Serverless v1.0! Your function executed successfully!",
-        "input": event,
+    dispatcher.process_update(Update.de_json(event.body, bot))
+
+    return {
+        "statusCode": 200,
     }
-
-    response = {"statusCode": 200, "body": json.dumps(body)}
-
-    return response
