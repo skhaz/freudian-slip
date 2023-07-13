@@ -1,3 +1,4 @@
+import json
 import os
 from queue import Queue
 
@@ -114,7 +115,7 @@ dispatcher.add_handler(CommandHandler("leaderboard", leaderboard))
 
 
 def telegram(event, context):
-    dispatcher.process_update(Update.de_json(event["body"], bot))
+    dispatcher.process_update(Update.de_json(json.loads(event["body"]), bot))
 
     return {
         "statusCode": 200,
