@@ -19,8 +19,8 @@ functions:
   telegram:
     handler: handler.telegram
     environment:
-      HIDDEN: penis
-      TOKEN: "TODO"
+      HIDDEN: ${env:HIDDEN}
+      TOKEN: ${env:TOKEN}
       REDIS_DSN:
         Fn::Join:
           - ""
