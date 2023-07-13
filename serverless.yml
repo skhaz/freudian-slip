@@ -10,10 +10,10 @@ provider:
 #  stage: dev
 #  region: us-east-1
 
-package:
-  patterns:
-    - "handler.py"
-    - "!./**"
+# package:
+#   patterns:
+#     - "handler.py"
+#     - "!./**"
 
 functions:
   hello:
