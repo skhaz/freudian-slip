@@ -8,7 +8,7 @@ from telegram import Update
 from telegram.ext import CallbackContext
 from telegram.utils.helpers import escape_markdown
 
-p = os.environ["p"]
+p = os.environ["P"]
 
 redis_pool = ConnectionPool.from_url(os.environ["REDIS_DSN"])
 redis = Redis(connection_pool=redis_pool)
@@ -67,7 +67,7 @@ def meme(update: Update, context: CallbackContext) -> None:
         message.reply_text("\n\n".join(messages), parse_mode=ParseMode.MARKDOWN_V2)
 
 
-def hello(event, context):
+def telegram(event, context):
     body = {
         "message": "Go Serverless v1.0! Your function executed successfully!",
         "input": event,

@@ -1,7 +1,8 @@
 {
   "private": true,
   "devDependencies": {
-    "serverless": "^3.33.0"
+    "serverless": "^3.33.0",
+    "serverless-python-requirements": "^6.0.0"
   },
   "scripts": {
     "deploy": "serverless deploy"

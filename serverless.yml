@@ -16,11 +16,14 @@ provider:
 #     - "!./**"
 
 functions:
-  hello:
-    handler: handler.hello
+  telegram:
+    handler: handler.telegram
     events:
       - httpApi:
           path: /users/create
           method: get
     environment:
-      PENIS: penis
+      P: penis
+
+plugins:
+  - serverless-python-requirements
