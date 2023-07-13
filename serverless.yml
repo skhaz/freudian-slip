@@ -1,0 +1,28 @@
+service: hidden-p-detector-bot
+
+frameworkVersion: "3"
+
+provider:
+  name: aws
+  runtime: python3.10
+
+# you can overwrite defaults here
+#  stage: dev
+#  region: us-east-1
+
+package:
+  patterns:
+    - "!handler.py"
+#    - '!exclude-me-dir/**'
+#    - include-me.py
+#    - include-me-dir/**
+
+functions:
+  hello:
+    handler: handler.hello
+    events:
+      - httpApi:
+          path: /users/create
+          method: get
+    environment:
+      PENIS: penis
