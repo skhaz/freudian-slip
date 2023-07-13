@@ -5,6 +5,7 @@
     "serverless-python-requirements": "^6.0.0"
   },
   "scripts": {
-    "deploy": "serverless deploy"
+    "deploy": "serverless deploy",
+    "doctor": "serverless doctor"
   }
 }

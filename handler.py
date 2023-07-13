@@ -10,7 +10,9 @@ from telegram.utils.helpers import escape_markdown
 
 hidden = os.environ["HIDDEN"]
 
-redis_pool = ConnectionPool.from_url(os.environ["REDIS_DSN"])
+print("os.environ['REDIS_DSN']", os.environ['REDIS_DSN'])
+
+redis_pool = ConnectionPool.from_url(os.environ['REDIS_DSN'])
 redis = Redis(connection_pool=redis_pool)
 
 
@@ -47,12 +49,15 @@ def meme(update: Update, context: CallbackContext) -> None:
 
         user_id = message.from_user.id
         user = message.from_user.name
+        one_year_in_seconds = 60 * 60 * 24 * 365
 
         pipeline = redis.pipeline(transaction=False)
         pipeline.incr(hidden)
         pipeline.incr(f"{hidden}:count:{user_id}")
         pipeline.set(f"{hidden}:user:{user_id}", user)
-        count, count_by_author, _ = pipeline.execute()
+        pipeline.expire(f"{hidden}:count:{user_id}", one_year_in_seconds)
+        pipeline.expire(f"{hidden}:user:{user_id}", one_year_in_seconds)
+        count, count_by_author, _, _, _ = pipeline.execute()
 
         caption = [
             f"Hidden {hidden} detected! {count} have been discovered so far. "
