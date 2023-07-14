@@ -1,6 +1,6 @@
 service: hidden-word-detector-bot
 
-frameworkVersion: 3
+frameworkVersion: "3"
 
 configValidationMode: error
 
