@@ -15,7 +15,7 @@ functions:
   telegram:
     handler: handler.telegram
     environment:
-      WORD: ${env:WORD}
+      REDIS_DSN: ${env:REDIS_DSN}
       TOKEN: ${env:TOKEN}
       WORD: ${env:WORD}
     events:
