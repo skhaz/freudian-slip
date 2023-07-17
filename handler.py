@@ -101,8 +101,10 @@ def leaderboard(update: Update, context: CallbackContext) -> None:
         else None
     )
 
+    mention = lambda uid: f"[{escape_markdown(get_username(f'{word}:user:{uid}'), version=2)}](tg://user?id={uid})"  # noqa
+
     users = [
-        rf"\* [{escape_markdown(get_username(f'{word}:user:{user[0]}'), version=2)}](tg://user?id={user[0]}) worshipped the {word} {user[1]} times"  # noqa
+        rf"\* {mention(user[0])} worshipped the {word} {user[1]} times"  # noqa
         for user in sorted_users
     ]
 
