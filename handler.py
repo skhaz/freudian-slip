@@ -101,6 +101,7 @@ def leaderboard(update: Update, context: CallbackContext) -> None:
         else None
     )
 
+    print(sorted_users)
     users = [
         rf"\* [{escape_markdown(get_username(f'{word}:user:{user[0]}'))}](tg://user?id={user[0]}) worshipped the {word} {user[1]} times"  # noqa
         for user in sorted_users
