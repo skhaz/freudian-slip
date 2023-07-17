@@ -1,4 +1,4 @@
-service: hidden-word-detector-telegram-bot
+service: hidden-word-detector
 
 frameworkVersion: "3"
 
