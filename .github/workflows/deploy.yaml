@@ -27,7 +27,7 @@ jobs:
         run: npm install -g serverless serverless-python-requirements
 
       - name: Deploy
-        run: serverless deploy
+        run: serverless deploy --force
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
