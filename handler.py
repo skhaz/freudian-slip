@@ -28,12 +28,12 @@ word = os.environ["WORD"]
 def rate_limit(resource: str = "", expire: int = 60 * 10):
     def decorator(func):
         @wraps(func)
-        def wrapper(key, *args, **kwargs):
+        def wrapper(*args, **kwargs):
             try:
                 with RateLimit(
                     redis_pool=redis_pool,
                     resource=resource,
-                    client=key,
+                    client=kwargs["key"],
                     max_requests=1,
                     expire=expire,
                 ):
