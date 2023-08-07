@@ -25,6 +25,32 @@ redis = Redis(connection_pool=redis_pool)
 word = os.environ["WORD"]
 
 
+def rate_limit(resource: str = "", expire: int = 60 * 10):
+    def decorator(func):
+        @wraps(func)
+        def wrapper(key, *args, **kwargs):
+            try:
+                with RateLimit(
+                    redis_pool=redis_pool,
+                    resource=resource,
+                    client=key,
+                    max_requests=1,
+                    expire=expire,
+                ):
+                    return func(*args, **kwargs)
+            except TooManyRequests:
+                pass
+
+        return wrapper
+
+    return decorator
+
+
+@rate_limit(resource="reply", expire=60 * 60)
+def reply(message, text):
+    message.reply_text(text, parse_mode=ParseMode.MARKDOWN_V2)
+
+
 def on_message(update: Update, context: CallbackContext) -> None:
     message = update.message
 
@@ -57,40 +83,29 @@ def on_message(update: Update, context: CallbackContext) -> None:
             letters.insert((index + 2) + i, "*")
 
         user_id = message.from_user.id
+        chat_id = message.chat.id
         user = message.from_user.name
         one_year_in_seconds = 60 * 60 * 24 * 365
 
-        try:
-            with RateLimit(
-                redis_pool=redis_pool,
-                resource="chat_id",
-                client=message.chat_id,
-                max_requests=1,
-                expire=60 * 60,
-            ):
-                pipeline = redis.pipeline(transaction=False)
-                pipeline.incr(word)
-                pipeline.incr(f"{word}:count:{user_id}")
-                pipeline.set(f"{word}:user:{user_id}", user)
-                pipeline.expire(f"{word}:count:{user_id}", one_year_in_seconds)
-                pipeline.expire(f"{word}:user:{user_id}", one_year_in_seconds)
-                count, count_by_author, *_ = pipeline.execute()
+        pipeline = redis.pipeline(transaction=False)
+        pipeline.incr(word)
+        pipeline.incr(f"{word}:count:{user_id}")
+        pipeline.set(f"{word}:user:{user_id}", user)
+        pipeline.expire(f"{word}:count:{user_id}", one_year_in_seconds)
+        pipeline.expire(f"{word}:user:{user_id}", one_year_in_seconds)
+        count, count_by_author, *_ = pipeline.execute()
 
-                caption = [
-                    f"Hidden {word} detected! {count} have been discovered so far. "
-                    f"{user} has already worshiped the {word} {count_by_author} time(s).",
-                ]
+        caption = [
+            f"Hidden {word} detected! {count} have been discovered so far. "
+            f"{user} has already worshiped the {word} {count_by_author} time(s).",
+        ]
 
-                messages = [
-                    "".join(letters),
-                    escape_markdown("".join(caption), version=2),
-                ]
+        messages = [
+            "".join(letters),
+            escape_markdown("".join(caption), version=2),
+        ]
 
-                message.reply_text(
-                    "\n\n".join(messages), parse_mode=ParseMode.MARKDOWN_V2
-                )
-        except TooManyRequests:
-            pass
+        reply(chat_id, message, "\n\n".join(messages))
 
 
 def leaderboard(update: Update, context: CallbackContext) -> None:
