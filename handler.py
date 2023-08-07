@@ -25,7 +25,7 @@ redis = Redis(connection_pool=redis_pool)
 word = os.environ["WORD"]
 
 
-def rate_limit(func: callable, resource: str = "", expire: int = 60 * 10):
+def rate_limit(func, resource: str = "", expire: int = 60 * 10):
     @wraps(func)
     def wrapper(update, context, *args, **kwargs):
         try:
