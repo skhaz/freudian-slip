@@ -105,7 +105,7 @@ def on_message(update: Update, context: CallbackContext) -> None:
             escape_markdown("".join(caption), version=2),
         ]
 
-        reply(chat_id, message, "\n\n".join(messages))
+        reply(key=chat_id, message=message, text="\n\n".join(messages))
 
 
 def leaderboard(update: Update, context: CallbackContext) -> None:
