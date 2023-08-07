@@ -25,16 +25,16 @@ redis = Redis(connection_pool=redis_pool)
 word = os.environ["WORD"]
 
 
-def rate_limit(func):
+def rate_limit(func, resource: str = "", expire: int = 60 * 10):
     @wraps(func)
     def wrapper(update, context, *args, **kwargs):
         try:
             with RateLimit(
                 redis_pool=redis_pool,
-                resource=update.message.chat_id,
-                client=update.message.from_user.username,
+                resource=resource,
+                client=update.message.chat_id,
                 max_requests=1,
-                expire=60 * 10,
+                expire=expire,
             ):
                 return func(update, context, *args, **kwargs)
         except TooManyRequests:
@@ -43,7 +43,7 @@ def rate_limit(func):
     return wrapper
 
 
-@rate_limit
+@rate_limit(resource="message", expire=60 * 10)
 def on_message(update: Update, context: CallbackContext) -> None:
     message = update.message
 
