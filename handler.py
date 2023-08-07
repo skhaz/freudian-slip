@@ -33,7 +33,7 @@ def rate_limit(resource: str = "", expire: int = 60 * 10):
                 with RateLimit(
                     redis_pool=redis_pool,
                     resource=resource,
-                    client=kwargs["key"],
+                    client=kwargs["message"].chat.id,
                     max_requests=1,
                     expire=expire,
                 ):
@@ -105,7 +105,7 @@ def on_message(update: Update, context: CallbackContext) -> None:
             escape_markdown("".join(caption), version=2),
         ]
 
-        reply(key=chat_id, message=message, text="\n\n".join(messages))
+        reply(message=message, text="\n\n".join(messages))
 
 
 def leaderboard(update: Update, context: CallbackContext) -> None:
