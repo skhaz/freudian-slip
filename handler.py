@@ -1,9 +1,12 @@
 import json
 import os
+from functools import wraps
 from queue import Queue
 
 from redis import ConnectionPool
 from redis import Redis
+from redis_rate_limit import RateLimit
+from redis_rate_limit import TooManyRequests
 from telegram import Bot
 from telegram import ParseMode
 from telegram import Update
@@ -22,6 +25,25 @@ redis = Redis(connection_pool=redis_pool)
 word = os.environ["WORD"]
 
 
+def rate_limit(func):
+    @wraps(func)
+    def wrapper(update, context, *args, **kwargs):
+        try:
+            with RateLimit(
+                redis_pool=redis_pool,
+                resource=update.message.chat_id,
+                client=update.message.from_user.username,
+                max_requests=1,
+                expire=60 * 10,
+            ):
+                return func(update, context, *args, **kwargs)
+        except TooManyRequests:
+            pass
+
+    return wrapper
+
+
+@rate_limit
 def on_message(update: Update, context: CallbackContext) -> None:
     message = update.message
 
@@ -101,7 +123,9 @@ def leaderboard(update: Update, context: CallbackContext) -> None:
         else None
     )
 
-    mention = lambda uid: f"[{escape_markdown(get_username(f'{word}:user:{uid}'), version=2)}](tg://user?id={uid})"  # noqa
+    mention = (
+        lambda uid: f"[{escape_markdown(get_username(f'{word}:user:{uid}'), version=2)}](tg://user?id={uid})"
+    )  # noqa
 
     users = [
         rf"\* {mention(user[0])} worshipped the {word} {user[1]} times"  # noqa
