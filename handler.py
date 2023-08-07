@@ -60,36 +60,37 @@ def on_message(update: Update, context: CallbackContext) -> None:
         user = message.from_user.name
         one_year_in_seconds = 60 * 60 * 24 * 365
 
-        pipeline = redis.pipeline(transaction=False)
-        pipeline.incr(word)
-        pipeline.incr(f"{word}:count:{user_id}")
-        pipeline.set(f"{word}:user:{user_id}", user)
-        pipeline.expire(f"{word}:count:{user_id}", one_year_in_seconds)
-        pipeline.expire(f"{word}:user:{user_id}", one_year_in_seconds)
-        count, count_by_author, *_ = pipeline.execute()
-
-        caption = [
-            f"Hidden {word} detected! {count} have been discovered so far. "
-            f"{user} has already worshiped the {word} {count_by_author} time(s).",
-        ]
-
-        messages = [
-            "".join(letters),
-            escape_markdown("".join(caption), version=2),
-        ]
-
         try:
             with RateLimit(
                 redis_pool=redis_pool,
-                resource="reply_text",
+                resource="chat_id",
                 client=message.chat_id,
                 max_requests=1,
                 expire=60 * 60,
             ):
-                message.reply_text("\n\n".join(messages), parse_mode=ParseMode.MARKDOWN_V2)
+                pipeline = redis.pipeline(transaction=False)
+                pipeline.incr(word)
+                pipeline.incr(f"{word}:count:{user_id}")
+                pipeline.set(f"{word}:user:{user_id}", user)
+                pipeline.expire(f"{word}:count:{user_id}", one_year_in_seconds)
+                pipeline.expire(f"{word}:user:{user_id}", one_year_in_seconds)
+                count, count_by_author, *_ = pipeline.execute()
+
+                caption = [
+                    f"Hidden {word} detected! {count} have been discovered so far. "
+                    f"{user} has already worshiped the {word} {count_by_author} time(s).",
+                ]
+
+                messages = [
+                    "".join(letters),
+                    escape_markdown("".join(caption), version=2),
+                ]
+
+                message.reply_text(
+                    "\n\n".join(messages), parse_mode=ParseMode.MARKDOWN_V2
+                )
         except TooManyRequests:
             pass
-
 
 
 def leaderboard(update: Update, context: CallbackContext) -> None:
