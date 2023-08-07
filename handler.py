@@ -44,7 +44,7 @@ def rate_limit(resource: str = "", expire: int = 60 * 10):
     return decorator
 
 
-@rate_limit(resource="message", expire=60 * 10)
+@rate_limit(resource="message", expire=60 * 60)
 def on_message(update: Update, context: CallbackContext) -> None:
     message = update.message
 
