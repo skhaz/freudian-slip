@@ -25,26 +25,6 @@ redis = Redis(connection_pool=redis_pool)
 word = os.environ["WORD"]
 
 
-def rate_limit(resource: str = "", expire: int = 60 * 10):
-    def decorator(func):
-        @wraps(func)
-        def wrapper(update, context, *args, **kwargs):
-            try:
-                with RateLimit(
-                    redis_pool=redis_pool,
-                    resource=resource,
-                    client=update.message.chat_id,
-                    max_requests=1,
-                    expire=expire,
-                ):
-                    return func(update, context, *args, **kwargs)
-            except TooManyRequests:
-                pass
-        return wrapper
-    return decorator
-
-
-@rate_limit(resource="message", expire=60 * 60)
 def on_message(update: Update, context: CallbackContext) -> None:
     message = update.message
 
@@ -98,7 +78,18 @@ def on_message(update: Update, context: CallbackContext) -> None:
             escape_markdown("".join(caption), version=2),
         ]
 
-        message.reply_text("\n\n".join(messages), parse_mode=ParseMode.MARKDOWN_V2)
+        try:
+            with RateLimit(
+                redis_pool=redis_pool,
+                resource="reply_text",
+                client=message.chat_id,
+                max_requests=1,
+                expire=60 * 60,
+            ):
+                message.reply_text("\n\n".join(messages), parse_mode=ParseMode.MARKDOWN_V2)
+        except TooManyRequests:
+            pass
+
 
 
 def leaderboard(update: Update, context: CallbackContext) -> None:
