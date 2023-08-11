@@ -1,5 +1,6 @@
 import json
 import os
+import re
 from functools import wraps
 from queue import Queue
 
@@ -67,6 +68,13 @@ def on_message(update: Update, context: CallbackContext) -> None:
     indexes = []
     for char in word:
         begin = indexes[-1] if indexes else 0
+
+        fragment = escaped_text[begin:length].lower()
+
+        match = re.search(r"http\S*", fragment)
+        if match:
+            begin = match.span()[1]
+
         index = escaped_text[begin:length].lower().find(char)
         if index != -1:
             indexes.append(index + begin)
@@ -83,7 +91,6 @@ def on_message(update: Update, context: CallbackContext) -> None:
             letters.insert((index + 2) + i, "*")
 
         user_id = message.from_user.id
-        chat_id = message.chat.id
         user = message.from_user.name
         one_year_in_seconds = 60 * 60 * 24 * 365
 
