@@ -71,7 +71,7 @@ def on_message(update: Update, context: CallbackContext) -> None:
 
         fragment = escaped_text[begin:length].lower()
 
-        match = re.search(r"http\S*", fragment)
+        match = re.search(r"^http\S*", fragment)
         if match:
             begin = match.span()[1]
 
