@@ -4,6 +4,7 @@ import re
 from functools import wraps
 from queue import Queue
 
+import yaml
 from redis import ConnectionPool
 from redis import Redis
 from redis_rate_limit import RateLimit
@@ -24,6 +25,9 @@ redis_pool = ConnectionPool.from_url(os.environ["REDIS_DSN"])
 redis = Redis(connection_pool=redis_pool)
 
 word = os.environ["WORD"]
+
+with open("denylist.yaml", "rt") as f:
+    denylist = yaml.safe_load(f)
 
 
 def rate_limit(resource: str = "", expire: int = 60 * 10):
@@ -112,7 +116,8 @@ def on_message(update: Update, context: CallbackContext) -> None:
             escape_markdown("".join(caption), version=2),
         ]
 
-        reply(message=message, text="\n\n".join(messages))
+        if user_id not in denylist:
+            reply(message=message, text="\n\n".join(messages))
 
 
 def leaderboard(update: Update, context: CallbackContext) -> None:
