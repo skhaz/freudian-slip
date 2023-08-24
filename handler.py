@@ -119,7 +119,7 @@ def on_message(update: Update, context: CallbackContext) -> None:
         if user_id in denylist:
             return
 
-        reply(message=message, text="\n\n".join(messages))
+        # reply(message=message, text="\n\n".join(messages))
 
 
 def leaderboard(update: Update, context: CallbackContext) -> None:
