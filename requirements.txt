@@ -1,4 +1,4 @@
 python-redis-rate-limit==0.0.8
 python-telegram-bot==13.15
 pyyaml==6.0.1
-redis==4.6.0
+redis==5.0.0
