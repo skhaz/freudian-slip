@@ -22,9 +22,6 @@ redis = Redis(connection_pool=redis_pool)
 
 word = os.environ["WORD"]
 
-with open("denylist.yaml", "rt") as f:
-    denylist = yaml.safe_load(f)
-
 
 def on_message(update: Update, context: CallbackContext) -> None:
     message = update.message
