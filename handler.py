@@ -1,14 +1,10 @@
 import json
 import os
-import re
-from functools import wraps
 from queue import Queue
 
 import yaml
 from redis import ConnectionPool
 from redis import Redis
-from redis_rate_limit import RateLimit
-from redis_rate_limit import TooManyRequests
 from telegram import Bot
 from telegram import ParseMode
 from telegram import Update
@@ -30,32 +26,6 @@ with open("denylist.yaml", "rt") as f:
     denylist = yaml.safe_load(f)
 
 
-def rate_limit(resource: str = "", expire: int = 60 * 10):
-    def decorator(func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            try:
-                with RateLimit(
-                    redis_pool=redis_pool,
-                    resource=resource,
-                    client=kwargs["message"].chat.id,
-                    max_requests=1,
-                    expire=expire,
-                ):
-                    return func(*args, **kwargs)
-            except TooManyRequests:
-                pass
-
-        return wrapper
-
-    return decorator
-
-
-@rate_limit(resource="reply", expire=60 * 60)
-def reply(message, text):
-    message.reply_text(text, parse_mode=ParseMode.MARKDOWN_V2)
-
-
 def on_message(update: Update, context: CallbackContext) -> None:
     message = update.message
 
@@ -68,24 +38,32 @@ def on_message(update: Update, context: CallbackContext) -> None:
         return
 
     escaped_text = escape_markdown(text, version=2)
-    length = len(escaped_text)
+    letters = list(word)
+    cursor = 0
     indexes = []
-    for char in word:
-        begin = indexes[-1] if indexes else 0
+    begin_of_word = True
+    in_sequence = False
 
-        fragment = escaped_text[begin:length].lower()
+    for index, char in enumerate(escaped_text):
+        if char == " ":
+            begin_of_word = True
+            continue
+        if begin_of_word:
+            begin_of_word = False
+            if char == letters[cursor]:
+                indexes.append(index)
+                cursor += 1
+                in_sequence = True
+                if cursor == len(letters):
+                    break
+                continue
+            in_sequence = False
+            cursor = 0
+            indexes = []
 
-        match = re.search(r"^http\S*", fragment)
-        if match:
-            begin = match.span()[1]
+    is_same_length = len(indexes) == len(word)
 
-        index = escaped_text[begin:length].lower().find(char)
-        if index != -1:
-            indexes.append(index + begin)
-
-    in_sequence = any(indexes[i] + 1 == indexes[i + 1] for i in range(len(indexes) - 1))
-    is_equidistant = len(indexes) == len(word)
-    if is_equidistant and not in_sequence:
+    if is_same_length and in_sequence:
         letters = [char for char in escaped_text]
         for i, index in enumerate(indexes):
             letters.insert(index + i, "*")
@@ -116,10 +94,7 @@ def on_message(update: Update, context: CallbackContext) -> None:
             escape_markdown("".join(caption), version=2),
         ]
 
-        if user_id in denylist:
-            return
-
-        # reply(message=message, text="\n\n".join(messages))
+        message.reply_text("\n\n".join(messages), parse_mode=ParseMode.MARKDOWN_V2)
 
 
 def leaderboard(update: Update, context: CallbackContext) -> None:
