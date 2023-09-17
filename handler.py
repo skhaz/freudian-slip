@@ -2,7 +2,6 @@ import json
 import os
 from queue import Queue
 
-import yaml
 from redis import ConnectionPool
 from redis import Redis
 from telegram import Bot
