@@ -129,7 +129,7 @@ async def on_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
         return
 
     # escaped_text = escape_markdown(text, version=2)
-    text = escape_markdown(text, version=2)
+    text = escape_markdown(text.lower(), version=2)
 
     indexes = find_seq(word, text)
 
