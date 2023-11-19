@@ -95,20 +95,10 @@ def telegram(event: APIGatewayProxyEventV1, context: Context):
         event["headers"].get("X-Telegram-Bot-Api-Secret-Token"),
         os.environ["SECRET"],
     ):
-        print(
-            ">>> headers",
-            event["headers"],
-            os.environ["SECRET"],
-        )
-        # return {
-        #     "statusCode": 401,
-        # }
+        return {
+            "statusCode": 401,
+        }
 
-    print(
-        ">>> 222",
-        event["headers"],
-        os.environ["SECRET"],
-    )
     asyncio.get_event_loop().run_until_complete(main(event))
 
     return {
@@ -133,8 +123,6 @@ async def on_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
     text = escape_markdown(text.lower(), version=2)
 
     indexes = find_seq(word, text)
-
-    print(">>> text", text)
 
     is_same_length = len(indexes) == len(word)
 
