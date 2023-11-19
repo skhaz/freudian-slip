@@ -109,20 +109,27 @@ def telegram(event: APIGatewayProxyEventV1, context: Context):
 async def on_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     message = update.message
     if not message:
+        print(">>> no message")
         return
 
     user = message.from_user
     if not user:
+        print(">>> no user")
         return
 
     text = message.text
     if not text:
+        print(">>> no text")
         return
 
     # escaped_text = escape_markdown(text, version=2)
     text = escape_markdown(text, version=2)
 
     indexes = find_seq(word, text)
+
+    print(">>> text", text)
+    print(">>> indexes", indexes)
+    print(">>> word", word)
 
     is_same_length = len(indexes) == len(word)
 
