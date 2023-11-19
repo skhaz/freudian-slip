@@ -106,7 +106,6 @@ def telegram(event: APIGatewayProxyEventV1, context: Context):
 
     asyncio.get_event_loop().run_until_complete(main(event))
 
-    print(">>> success")
     return {
         "statusCode": 200,
     }
@@ -115,17 +114,14 @@ def telegram(event: APIGatewayProxyEventV1, context: Context):
 async def on_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     message = update.message
     if not message:
-        print(">>> no message")
         return
 
     user = message.from_user
     if not user:
-        print(">>> no user")
         return
 
     text = message.text
     if not text:
-        print(">>> no text")
         return
 
     # escaped_text = escape_markdown(text, version=2)
@@ -134,8 +130,6 @@ async def on_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
     indexes = find_seq(word, text)
 
     print(">>> text", text)
-    print(">>> indexes", indexes)
-    print(">>> word", word)
 
     is_same_length = len(indexes) == len(word)
 
