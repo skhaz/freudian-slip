@@ -155,7 +155,5 @@ async def on_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
         )
 
 
-application.add_handler(
-    MessageHandler(filters.Filters.text & ~filters.Filters.command, on_message)
-)
+application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, on_message))
 # application.add_handler(CommandHandler("leaderboard", leaderboard))
