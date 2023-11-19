@@ -39,7 +39,7 @@ jobs:
         run: |
           URL=$(serverless info --verbose --stage development | grep "/webhook" | grep -Eo "https://[^ >]+")
           echo "Setting webhook to ${URL}"
-          curl "https://api.telegram.org/bot${TELEGRAM_TOKEN}/setWebhook?url=${URL}&secret_token=${SECRET}"
+          curl -fsS -m 10 --retry 5 -o /dev/null "https://api.telegram.org/bot${TELEGRAM_TOKEN}/setWebhook?url=${URL}&secret_token=${SECRET}"
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
