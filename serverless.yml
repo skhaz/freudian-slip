@@ -16,7 +16,7 @@ functions:
     handler: handler.telegram
     environment:
       SECRET: ${env:SECRET}
-      TELEGRAM_TOKEN: ${env:TOKEN}
+      TELEGRAM_TOKEN: ${env:TELEGRAM_TOKEN}
       WORD: ${env:WORD}
     events:
       - http: POST /webhook
