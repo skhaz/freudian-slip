@@ -95,7 +95,11 @@ def telegram(event: APIGatewayProxyEventV1, context: Context):
         event["headers"].get("x-telegram-bot-api-secret-token"),
         os.environ["SECRET"],
     ):
-        print(">>> invalid secret")
+        print(
+            ">>> invalid secret",
+            event["headers"].get("x-telegram-bot-api-secret-token"),
+            os.environ["SECRET"],
+        )
         return {
             "statusCode": 401,
         }
