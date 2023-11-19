@@ -15,8 +15,8 @@ functions:
   telegram:
     handler: handler.telegram
     environment:
-      REDIS_DSN: ${env:REDIS_DSN}
-      TOKEN: ${env:TOKEN}
+      SECRET: ${env:SECRET}
+      TELEGRAM_TOKEN: ${env:TOKEN}
       WORD: ${env:WORD}
     events:
       - http: POST /webhook
