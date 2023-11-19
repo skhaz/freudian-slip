@@ -92,12 +92,12 @@ def equals(left, right):
 
 def telegram(event: APIGatewayProxyEventV1, context: Context):
     if not equals(
-        event["headers"].get("x-telegram-bot-api-secret-token"),
+        event["headers"].get("X-Telegram-Bot-Api-Secret-Token"),
         os.environ["SECRET"],
     ):
         print(
-            ">>> invalid secret",
-            event["headers"].get("x-telegram-bot-api-secret-token"),
+            ">>> headers",
+            event["headers"],
             os.environ["SECRET"],
         )
         # return {
