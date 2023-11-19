@@ -104,6 +104,11 @@ def telegram(event: APIGatewayProxyEventV1, context: Context):
         #     "statusCode": 401,
         # }
 
+    print(
+        ">>> 222",
+        event["headers"],
+        os.environ["SECRET"],
+    )
     asyncio.get_event_loop().run_until_complete(main(event))
 
     return {
