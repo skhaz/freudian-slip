@@ -31,6 +31,18 @@ jobs:
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          REDIS_DSN: ${{ secrets.REDIS_DSN }}
-          TOKEN: ${{ secrets.TOKEN }}
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          SECRET: ${{ secrets.SECRET }}
+          WORD: ${{ secrets.WORD }}
+
+      - name: Set Webhook
+        run: |
+          URL=$(serverless info --verbose --stage development | grep "/webhook" | grep -Eo "https://[^ >]+")
+          echo "Setting webhook to ${URL}"
+          curl "https://api.telegram.org/bot${TELEGRAM_TOKEN}/setWebhook?url=${URL}&secret_token=${SECRET}"
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          SECRET: ${{ secrets.SECRET }}
           WORD: ${{ secrets.WORD }}
