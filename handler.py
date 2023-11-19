@@ -100,9 +100,9 @@ def telegram(event: APIGatewayProxyEventV1, context: Context):
             event["headers"].get("x-telegram-bot-api-secret-token"),
             os.environ["SECRET"],
         )
-        return {
-            "statusCode": 401,
-        }
+        # return {
+        #     "statusCode": 401,
+        # }
 
     asyncio.get_event_loop().run_until_complete(main(event))
 
