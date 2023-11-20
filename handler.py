@@ -183,13 +183,6 @@ async def on_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
             )
 
 
-# async def scan(table, **kwargs):
-#     response = table.scan(**kwargs)
-#     from response["Items"]
-#     while response.get("LastEvaluatedKey"):
-#         response = table.scan(ExclusiveStartKey=response["LastEvaluatedKey"], **kwargs)
-#         yield from response["Items"]
-
 import decimal
 
 
@@ -208,7 +201,11 @@ async def leaderboard(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
     async with boto3.resource("dynamodb") as dynamodb:
         result = []
         table = await dynamodb.Table(os.environ["USER_TABLE"])
-        scan_kwargs = {"ProjectionExpression": "id, name, score"}
+        scan_kwargs = {
+            "ExpressionAttributeNames": {"#name": "name"},
+            "ProjectionExpression": "id, name, score",
+        }
+
         while True:
             response = await table.scan(**scan_kwargs)
             result.extend(response["Items"])
