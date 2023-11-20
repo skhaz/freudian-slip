@@ -184,6 +184,15 @@ async def on_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
 #         response = table.scan(ExclusiveStartKey=response["LastEvaluatedKey"], **kwargs)
 #         yield from response["Items"]
 
+import decimal
+
+
+class DecimalEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, decimal.Decimal):
+            return str(o)
+        return super().default(o)
+
 
 async def leaderboard(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     message = update.message
@@ -201,7 +210,7 @@ async def leaderboard(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
                 break
             scan_kwargs["ExclusiveStartKey"] = response["LastEvaluatedKey"]
 
-        message.reply_text(json.dumps(result))
+        message.reply_text(json.dumps(result, cls=DecimalEncoder))
         # items = []
         # scan_kwargs = {"TableName": os.environ["USER_TABLE"]}
         # done = False
