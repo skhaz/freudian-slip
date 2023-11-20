@@ -160,7 +160,7 @@ async def on_test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if not message:
         return
 
-    user = message.left_chat_member
+    user = message.from_user
     if not user:
         return
 
