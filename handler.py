@@ -165,7 +165,7 @@ async def on_test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         return
 
     key = {"id": str(user.id)}
-    print(">>> key", key)
+
     async with boto3.resource("dynamodb") as dynamodb:
         table = await dynamodb.Table(os.environ["USER_TABLE"])
         response = await table.update_item(
@@ -178,7 +178,9 @@ async def on_test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         score = response["Attributes"]["score"]
 
         await message.reply_text(
-            f"{user.name} has been worshiped {score} time(s).",
+            escape_markdown(
+                f"{user.name} has been worshiped {score} time(s).", version=2
+            ),
             parse_mode=ParseMode.MARKDOWN_V2,
         )
 
