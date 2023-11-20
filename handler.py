@@ -161,7 +161,7 @@ async def on_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
             mention = f"[{user.username}](tg://user?id={user.id})"
 
             caption = [
-                f"Hidden {word} detected\!\n"
+                f"Hidden {word.upper()} detected\!\n"
                 f"{mention} has already worshiped the {word} {score} times\.\n",
                 f"{global_score} have been discovered so far\.\n",
             ]
