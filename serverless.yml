@@ -12,33 +12,34 @@ provider:
   stage: development
 
 resources:
-  UserTable:
-    Type: AWS::DynamoDB::Table
-    Properties:
-      AttributeDefinitions:
-        - AttributeName: id
-          AttributeType: S
-        - AttributeName: score
-          AttributeType: N
-      KeySchema:
-        - AttributeName: id
-          KeyType: HASH
-        - AttributeName: score
-          KeyType: RANGE
-      BillingMode: PAY_PER_REQUEST
-  GlobalTable:
-    Type: AWS::DynamoDB::Table
-    Properties:
-      AttributeDefinitions:
-        - AttributeName: id
-          AttributeType: S
-        - AttributeName: score
-          AttributeType: N
-      KeySchema:
-        - AttributeName: id
-          KeyType: HASH
-        - AttributeName: score
-          KeyType: RANGE
+  Resources:
+    UserTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+          - AttributeName: score
+            AttributeType: N
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+          - AttributeName: score
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+    GlobalTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+          - AttributeName: score
+            AttributeType: N
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+          - AttributeName: score
+            KeyType: RANGE
 
 functions:
   telegram:
