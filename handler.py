@@ -198,9 +198,7 @@ async def leaderboard(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
             for item in items
         ]
 
-        top_users = sorted(users_with_scores, key=lambda x: x["score"], reverse=True)[
-            :10
-        ]  # noqa
+        top_users = sorted(users_with_scores, key=lambda x: x["score"], reverse=True)[:10]  # fmt: skip
 
         message.reply_text(json.dumps(top_users))
 
