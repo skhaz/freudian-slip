@@ -199,7 +199,7 @@ async def leaderboard(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
         return
 
     async with boto3.resource("dynamodb") as dynamodb:
-        result = []
+        items = []
         table = await dynamodb.Table(os.environ["USER_TABLE"])
         scan_kwargs = {
             "ExpressionAttributeNames": {"#n": "name"},
@@ -208,33 +208,17 @@ async def leaderboard(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
 
         while True:
             response = await table.scan(**scan_kwargs)
-            result.extend(response["Items"])
+            items.extend(response["Items"])
             if "LastEvaluatedKey" not in response:
                 break
             scan_kwargs["ExclusiveStartKey"] = response["LastEvaluatedKey"]
 
-        await message.reply_text(json.dumps(result, cls=DecimalEncoder))
-        # items = []
-        # scan_kwargs = {"TableName": os.environ["USER_TABLE"]}
-        # done = False
-        # start_key = None
+        top_users = [
+            rf"\* [{item['name']}](tg://user?id={item['id']}) has worshipped the {word} {int(item['score']['N'])} times"
+            for item in sorted(items, key=lambda i: int(i["score"]["N"]), reverse=True)[:10]  # fmt: skip
+        ]
 
-        # while not done:
-        #     if start_key:
-        #         scan_kwargs["ExclusiveStartKey"] = start_key
-        #     response = await dynamodb.scan(**scan_kwargs)
-        #     items.extend(response.get("Items", []))
-        #     start_key = response.get("LastEvaluatedKey", None)
-        #     done = start_key is None
-
-        # sorted_items = sorted(items, key=lambda i: int(i["score"]["N"]), reverse=True)[:10]  # fmt: skip
-
-        # top_users = [
-        #     {"user": item["user"]["S"], "score": int(item["score"]["N"])}
-        #     for item in sorted_items
-        # ]
-
-        # message.reply_text(json.dumps(top_users))
+        await message.reply_text("\n".join(top_users), parse_mode=ParseMode.MARKDOWN_V2)
 
 
 application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, on_message))
