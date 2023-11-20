@@ -158,7 +158,7 @@ async def on_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
 
             messages = [
                 "".join(letters),
-                "\n".join(caption),
+                "\n\n".join(caption),
             ]
 
             await message.reply_text(
