@@ -148,14 +148,17 @@ async def on_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
 
             score = response["Attributes"]["score"]
 
+            mention = f"[{user.username}](tg://user?id={user.id})"
+
             caption = [
-                f"Hidden {word} detected! {0} have been discovered so far. "
-                f"{user.name} has already worshiped the {word} {score} time(s).",
+                f"Hidden {word} detected!"
+                f"{mention} has already worshiped the {word} {score} time(s).",
+                f"{0} have been discovered so far.",
             ]
 
             messages = [
                 "".join(letters),
-                escape_markdown("".join(caption), version=2),
+                escape_markdown("\n".join(caption), version=2),
             ]
 
             await message.reply_text(
