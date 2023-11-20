@@ -55,13 +55,16 @@ functions:
           - dynamodb:UpdateItem
           - dynamodb:DeleteItem
         Resource:
-          - Fn::GetAtt: [DynamoDBTable, Arn]
+          - Fn::GetAtt: [UserTable, Arn]
+          - Fn::GetAtt: [GlobalTable, Arn]
     environment:
       SECRET: ${env:SECRET}
       TELEGRAM_TOKEN: ${env:TELEGRAM_TOKEN}
       WORD: ${env:WORD}
-      DYNAMODB_TABLE:
+      USER_TABLE:
         Ref: UserTable
+      GLOBAL_TABLE:
+        Ref: GlobalTable
 
 plugins:
   - serverless-iam-roles-per-function
