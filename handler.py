@@ -199,12 +199,14 @@ async def leaderboard(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
         return
 
     async with boto3.resource("dynamodb") as dynamodb:
-        items = []
         table = await dynamodb.Table(os.environ["USER_TABLE"])
+
         scan_kwargs = {
             "ExpressionAttributeNames": {"#n": "name"},
             "ProjectionExpression": "id, #n, score",
         }
+
+        items = []
 
         while True:
             response = await table.scan(**scan_kwargs)
@@ -214,7 +216,7 @@ async def leaderboard(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
             scan_kwargs["ExclusiveStartKey"] = response["LastEvaluatedKey"]
 
         top_users = [
-            rf"\* [{item['name']}](tg://user?id={item['id']}) has worshipped the {word} {int(item['score'])} times"
+            rf"\* [{item['name']}](tg://user?id={item['id']}) has worshipped the {word.upper()} {int(item['score'])} times"
             for item in sorted(items, key=lambda i: int(i["score"]), reverse=True)[:10]  # fmt: skip
         ]
 
