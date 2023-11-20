@@ -40,6 +40,7 @@ resources:
             KeyType: HASH
           - AttributeName: score
             KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
 
 functions:
   telegram:
