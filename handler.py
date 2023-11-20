@@ -202,8 +202,8 @@ async def leaderboard(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
         result = []
         table = await dynamodb.Table(os.environ["USER_TABLE"])
         scan_kwargs = {
-            "ExpressionAttributeNames": {"#name": "name"},
-            "ProjectionExpression": "id, name, score",
+            "ExpressionAttributeNames": {"#n": "name"},
+            "ProjectionExpression": "id, #n, score",
         }
 
         while True:
