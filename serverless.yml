@@ -19,13 +19,9 @@ resources:
         AttributeDefinitions:
           - AttributeName: id
             AttributeType: S
-          - AttributeName: score
-            AttributeType: N
         KeySchema:
           - AttributeName: id
             KeyType: HASH
-          - AttributeName: score
-            KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
     GlobalTable:
       Type: AWS::DynamoDB::Table

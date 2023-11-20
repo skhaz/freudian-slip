@@ -164,15 +164,13 @@ async def on_test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if not user:
         return
 
-    key = {"id": f"{message.chat_id}:{user.id}"}
+    key = {"id": user.id}
     async with boto3.resource("dynamodb") as dynamodb:
         table = await dynamodb.Table(os.environ["USER_TABLE"])
-        # response = await table.get_item(Key=key)
-        # item = response.get("Item")
         response = await table.update_item(
             Key=key,
-            UpdateExpression="SET score = score + :inc",
-            ExpressionAttributeValues={":inc": 1},
+            UpdateExpression="SET score = if_not_exists(score, :start) + :inc",
+            ExpressionAttributeValues={":start": 0, ":inc": 1},
             ReturnValues="UPDATED_NEW",
         )
 
