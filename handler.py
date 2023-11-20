@@ -165,6 +165,7 @@ async def on_test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         return
 
     key = {"id": user.id}
+    print(">>> key", key)
     async with boto3.resource("dynamodb") as dynamodb:
         table = await dynamodb.Table(os.environ["USER_TABLE"])
         response = await table.update_item(
