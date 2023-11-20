@@ -135,24 +135,39 @@ async def on_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
         for i, index in enumerate(indexes):
             letters.insert((index + 2) + i, "*")
 
-        count = 1
-        count_by_author = 3
-        # user_id = message.from_user.id
-        user = message.from_user.name
+        key = {"id": str(user.id)}
 
-        caption = [
-            f"Hidden {word} detected! {count} have been discovered so far. "
-            f"{user} has already worshiped the {word} {count_by_author} time(s).",
-        ]
+        async with boto3.resource("dynamodb") as dynamodb:
+            table = await dynamodb.Table(os.environ["USER_TABLE"])
+            response = await table.update_item(
+                Key=key,
+                UpdateExpression="SET score = if_not_exists(score, :start) + :inc",
+                ExpressionAttributeValues={":start": 0, ":inc": 1},
+                ReturnValues="UPDATED_NEW",
+            )
 
-        messages = [
-            "".join(letters),
-            escape_markdown("".join(caption), version=2),
-        ]
+            score = response["Attributes"]["score"]
 
-        await message.reply_text(
-            "\n\n".join(messages), parse_mode=ParseMode.MARKDOWN_V2
-        )
+            await message.reply_text(
+                escape_markdown(
+                    f"{user.name} has been worshiped {score} time(s).", version=2
+                ),
+                parse_mode=ParseMode.MARKDOWN_V2,
+            )
+
+            caption = [
+                f"Hidden {word} detected! {0} have been discovered so far. "
+                f"{user} has already worshiped the {word} {score} time(s).",
+            ]
+
+            messages = [
+                "".join(letters),
+                escape_markdown("".join(caption), version=2),
+            ]
+
+            await message.reply_text(
+                "\n\n".join(messages), parse_mode=ParseMode.MARKDOWN_V2
+            )
 
 
 async def on_test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
