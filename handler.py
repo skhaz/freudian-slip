@@ -177,33 +177,52 @@ async def on_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
             )
 
 
+# async def scan(table, **kwargs):
+#     response = table.scan(**kwargs)
+#     from response["Items"]
+#     while response.get("LastEvaluatedKey"):
+#         response = table.scan(ExclusiveStartKey=response["LastEvaluatedKey"], **kwargs)
+#         yield from response["Items"]
+
+
 async def leaderboard(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     message = update.message
     if not message:
         return
 
     async with boto3.resource("dynamodb") as dynamodb:
-        items = []
-        scan_kwargs = {"TableName": os.environ["USER_TABLE"]}
-        done = False
-        start_key = None
+        result = []
+        table = await dynamodb.Table(os.environ["USER_TABLE"])
+        scan_kwargs = {"ProjectionExpression": "user, score"}
+        while True:
+            response = await table.scan(**scan_kwargs)
+            result.extend(response["Items"])
+            if "LastEvaluatedKey" not in response:
+                break
+            scan_kwargs["ExclusiveStartKey"] = response["LastEvaluatedKey"]
 
-        while not done:
-            if start_key:
-                scan_kwargs["ExclusiveStartKey"] = start_key
-            response = await dynamodb.scan(**scan_kwargs)
-            items.extend(response.get("Items", []))
-            start_key = response.get("LastEvaluatedKey", None)
-            done = start_key is None
+        message.reply_text(json.dumps(result))
+        # items = []
+        # scan_kwargs = {"TableName": os.environ["USER_TABLE"]}
+        # done = False
+        # start_key = None
 
-        sorted_items = sorted(items, key=lambda i: int(i["score"]["N"]), reverse=True)[:10]  # fmt: skip
+        # while not done:
+        #     if start_key:
+        #         scan_kwargs["ExclusiveStartKey"] = start_key
+        #     response = await dynamodb.scan(**scan_kwargs)
+        #     items.extend(response.get("Items", []))
+        #     start_key = response.get("LastEvaluatedKey", None)
+        #     done = start_key is None
 
-        top_users = [
-            {"user": item["user"]["S"], "score": int(item["score"]["N"])}
-            for item in sorted_items
-        ]
+        # sorted_items = sorted(items, key=lambda i: int(i["score"]["N"]), reverse=True)[:10]  # fmt: skip
 
-        message.reply_text(json.dumps(top_users))
+        # top_users = [
+        #     {"user": item["user"]["S"], "score": int(item["score"]["N"])}
+        #     for item in sorted_items
+        # ]
+
+        # message.reply_text(json.dumps(top_users))
 
 
 application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, on_message))
