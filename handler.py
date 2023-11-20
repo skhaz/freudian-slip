@@ -148,16 +148,9 @@ async def on_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
 
             score = response["Attributes"]["score"]
 
-            await message.reply_text(
-                escape_markdown(
-                    f"{user.name} has been worshiped {score} time(s).", version=2
-                ),
-                parse_mode=ParseMode.MARKDOWN_V2,
-            )
-
             caption = [
                 f"Hidden {word} detected! {0} have been discovered so far. "
-                f"{user} has already worshiped the {word} {score} time(s).",
+                f"{user.name} has already worshiped the {word} {score} time(s).",
             ]
 
             messages = [
