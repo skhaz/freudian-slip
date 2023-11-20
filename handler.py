@@ -136,6 +136,7 @@ async def on_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
             letters.insert((index + 2) + i, "*")
 
         key = {"id": str(user.id)}
+        name = user.username or user.first_name
 
         async with boto3.resource("dynamodb") as dynamodb:
             table = await dynamodb.Table(os.environ["USER_TABLE"])
@@ -144,8 +145,13 @@ async def on_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
             [response, global_response] = await asyncio.gather(
                 table.update_item(
                     Key=key,
-                    UpdateExpression="SET score = if_not_exists(score, :start) + :inc",
-                    ExpressionAttributeValues={":start": 0, ":inc": 1},
+                    UpdateExpression="SET score = if_not_exists(score, :start) + :inc, #n = :name",
+                    ExpressionAttributeNames={"#n": "name"},
+                    ExpressionAttributeValues={
+                        ":start": 0,
+                        ":inc": 1,
+                        ":name": name,
+                    },
                     ReturnValues="UPDATED_NEW",
                 ),
                 global_table.update_item(
@@ -202,7 +208,7 @@ async def leaderboard(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
     async with boto3.resource("dynamodb") as dynamodb:
         result = []
         table = await dynamodb.Table(os.environ["USER_TABLE"])
-        scan_kwargs = {"ProjectionExpression": "score"}
+        scan_kwargs = {"ProjectionExpression": "id, name, score"}
         while True:
             response = await table.scan(**scan_kwargs)
             result.extend(response["Items"])
