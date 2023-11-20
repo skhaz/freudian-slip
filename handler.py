@@ -183,28 +183,27 @@ async def leaderboard(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
         return
 
     async with boto3.resource("dynamodb") as dynamodb:
-        async with aioboto3.client("dynamodb", region_name="us-west-2") as dynamodb:
-            items = []
-            scan_kwargs = {"TableName": os.environ["USER_TABLE"]}
-            done = False
-            start_key = None
+        items = []
+        scan_kwargs = {"TableName": os.environ["USER_TABLE"]}
+        done = False
+        start_key = None
 
-            while not done:
-                if start_key:
-                    scan_kwargs["ExclusiveStartKey"] = start_key
-                response = await dynamodb.scan(**scan_kwargs)
-                items.extend(response.get("Items", []))
-                start_key = response.get("LastEvaluatedKey", None)
-                done = start_key is None
+        while not done:
+            if start_key:
+                scan_kwargs["ExclusiveStartKey"] = start_key
+            response = await dynamodb.scan(**scan_kwargs)
+            items.extend(response.get("Items", []))
+            start_key = response.get("LastEvaluatedKey", None)
+            done = start_key is None
 
-            sorted_items = sorted(items, key=lambda i: int(i["score"]["N"]), reverse=True)[:10]  # fmt: skip
+        sorted_items = sorted(items, key=lambda i: int(i["score"]["N"]), reverse=True)[:10]  # fmt: skip
 
-            top_users = [
-                {"user": item["user"]["S"], "score": int(item["score"]["N"])}
-                for item in sorted_items
-            ]
+        top_users = [
+            {"user": item["user"]["S"], "score": int(item["score"]["N"])}
+            for item in sorted_items
+        ]
 
-            message.reply_text(json.dumps(top_users))
+        message.reply_text(json.dumps(top_users))
 
 
 application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, on_message))
