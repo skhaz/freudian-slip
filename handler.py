@@ -214,8 +214,8 @@ async def leaderboard(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
             scan_kwargs["ExclusiveStartKey"] = response["LastEvaluatedKey"]
 
         top_users = [
-            rf"\* [{item['name']}](tg://user?id={item['id']}) has worshipped the {word} {int(item['score']['N'])} times"
-            for item in sorted(items, key=lambda i: int(i["score"]["N"]), reverse=True)[:10]  # fmt: skip
+            rf"\* [{item['name']}](tg://user?id={item['id']}) has worshipped the {word} {int(item['score'])} times"
+            for item in sorted(items, key=lambda i: int(i["score"]), reverse=True)[:10]  # fmt: skip
         ]
 
         await message.reply_text("\n".join(top_users), parse_mode=ParseMode.MARKDOWN_V2)
