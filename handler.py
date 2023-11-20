@@ -139,6 +139,7 @@ async def on_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
 
         async with boto3.resource("dynamodb") as dynamodb:
             table = await dynamodb.Table(os.environ["USER_TABLE"])
+            global_table = await dynamodb.Table(os.environ["GLOBAL_TABLE"])
 
             [response, global_response] = await asyncio.gather(
                 table.update_item(
@@ -147,7 +148,7 @@ async def on_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
                     ExpressionAttributeValues={":start": 0, ":inc": 1},
                     ReturnValues="UPDATED_NEW",
                 ),
-                table.update_item(
+                global_table.update_item(
                     Key={"id": "global"},
                     UpdateExpression="SET score = if_not_exists(score, :start) + :inc",
                     ExpressionAttributeValues={":start": 0, ":inc": 1},
@@ -176,37 +177,25 @@ async def on_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
             )
 
 
-async def on_test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+async def leaderboard(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     message = update.message
     if not message:
         return
 
-    user = message.from_user
-    if not user:
-        return
-
-    key = {"id": str(user.id)}
-
     async with boto3.resource("dynamodb") as dynamodb:
         table = await dynamodb.Table(os.environ["USER_TABLE"])
-        response = await table.update_item(
-            Key=key,
-            UpdateExpression="SET score = if_not_exists(score, :start) + :inc",
-            ExpressionAttributeValues={":start": 0, ":inc": 1},
-            ReturnValues="UPDATED_NEW",
+        # Get top 10 scores with ID
+        response = await table.scan(
+            ProjectionExpression="id, score",
+            Limit=10,
+            ScanIndexForward=False,
+            ConsistentRead=True,
         )
 
-        score = response["Attributes"]["score"]
+        scores = response["Items"]
 
-        await message.reply_text(
-            escape_markdown(
-                f"{user.name} has been worshiped {score} time(s).", version=2
-            ),
-            parse_mode=ParseMode.MARKDOWN_V2,
-        )
+        message.reply_text(json.dumps(scores))
 
 
 application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, on_message))
-# application.add_handler(CommandHandler("leaderboard", leaderboard))
-
-application.add_handler(CommandHandler("test", on_test))
+application.add_handler(CommandHandler("leaderboard", leaderboard))
