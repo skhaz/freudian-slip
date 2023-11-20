@@ -11,15 +11,57 @@ provider:
   architecture: arm64
   stage: development
 
+resources:
+  UserTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+        - AttributeName: score
+          AttributeType: N
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+        - AttributeName: score
+          KeyType: RANGE
+      BillingMode: PAY_PER_REQUEST
+  GlobalTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+        - AttributeName: score
+          AttributeType: N
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+        - AttributeName: score
+          KeyType: RANGE
+
 functions:
   telegram:
     handler: handler.telegram
+    events:
+      - http: POST /webhook
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:BatchWriteItem
+          - dynamodb:GetItem
+          - dynamodb:PutItem
+          - dynamodb:UpdateItem
+          - dynamodb:DeleteItem
+        Resource:
+          - Fn::GetAtt: [DynamoDBTable, Arn]
     environment:
       SECRET: ${env:SECRET}
       TELEGRAM_TOKEN: ${env:TELEGRAM_TOKEN}
       WORD: ${env:WORD}
-    events:
-      - http: POST /webhook
+      DYNAMODB_TABLE:
+        Ref: UserTable
 
 plugins:
+  - serverless-iam-roles-per-function
   - serverless-python-requirements

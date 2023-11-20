@@ -11,6 +11,7 @@ import aioboto3
 from telegram import Update
 from telegram.constants import ParseMode
 from telegram.ext import Application
+from telegram.ext import CommandHandler
 from telegram.ext import ContextTypes
 from telegram.ext import MessageHandler
 from telegram.ext import filters
@@ -119,7 +120,6 @@ async def on_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
     if not text:
         return
 
-    # escaped_text = escape_markdown(text, version=2)
     text = escape_markdown(text.lower(), version=2)
 
     indexes = find_seq(word, text)
@@ -155,5 +155,36 @@ async def on_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
         )
 
 
+async def on_test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    message = update.message
+    if not message:
+        return
+
+    user = message.left_chat_member
+    if not user:
+        return
+
+    key = {"id": f"{message.chat_id}:{user.id}"}
+    async with boto3.resource("dynamodb") as dynamodb:
+        table = await dynamodb.Table(os.environ["USER_TABLE"])
+        # response = await table.get_item(Key=key)
+        # item = response.get("Item")
+        response = await table.update_item(
+            Key=key,
+            UpdateExpression="SET score = score + :inc",
+            ExpressionAttributeValues={":inc": 1},
+            ReturnValues="UPDATED_NEW",
+        )
+
+        score = response["Attributes"]["score"]
+
+        await message.reply_text(
+            f"{user.name} has been worshiped {score} time(s).",
+            parse_mode=ParseMode.MARKDOWN_V2,
+        )
+
+
 application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, on_message))
 # application.add_handler(CommandHandler("leaderboard", leaderboard))
+
+application.add_handler(CommandHandler("test", on_test))
