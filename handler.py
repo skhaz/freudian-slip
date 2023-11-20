@@ -139,21 +139,31 @@ async def on_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
 
         async with boto3.resource("dynamodb") as dynamodb:
             table = await dynamodb.Table(os.environ["USER_TABLE"])
-            response = await table.update_item(
-                Key=key,
-                UpdateExpression="SET score = if_not_exists(score, :start) + :inc",
-                ExpressionAttributeValues={":start": 0, ":inc": 1},
-                ReturnValues="UPDATED_NEW",
+
+            [response, global_response] = await asyncio.gather(
+                table.update_item(
+                    Key=key,
+                    UpdateExpression="SET score = if_not_exists(score, :start) + :inc",
+                    ExpressionAttributeValues={":start": 0, ":inc": 1},
+                    ReturnValues="UPDATED_NEW",
+                ),
+                table.update_item(
+                    Key={"id": "global"},
+                    UpdateExpression="SET score = if_not_exists(score, :start) + :inc",
+                    ExpressionAttributeValues={":start": 0, ":inc": 1},
+                    ReturnValues="UPDATED_NEW",
+                ),
             )
 
             score = response["Attributes"]["score"]
+            global_score = global_response["Attributes"]["score"]
 
             mention = f"[{user.username}](tg://user?id={user.id})"
 
             caption = [
                 f"Hidden {word} detected\!\n"
                 f"{mention} has already worshiped the {word} {score} times\.\n",
-                f"{0} have been discovered so far\.\n",
+                f"{global_score} have been discovered so far\.\n",
             ]
 
             messages = [
