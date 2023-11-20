@@ -210,7 +210,7 @@ async def leaderboard(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
                 break
             scan_kwargs["ExclusiveStartKey"] = response["LastEvaluatedKey"]
 
-        message.reply_text(json.dumps(result, cls=DecimalEncoder))
+        await message.reply_text(json.dumps(result, cls=DecimalEncoder))
         # items = []
         # scan_kwargs = {"TableName": os.environ["USER_TABLE"]}
         # done = False
