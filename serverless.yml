@@ -42,6 +42,7 @@ functions:
     iamRoleStatements:
       - Effect: Allow
         Action:
+          - dynanmodb:Scan
           - dynamodb:UpdateItem
         Resource:
           - Fn::GetAtt: [UserTable, Arn]

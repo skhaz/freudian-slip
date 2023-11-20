@@ -184,17 +184,25 @@ async def leaderboard(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
 
     async with boto3.resource("dynamodb") as dynamodb:
         table = await dynamodb.Table(os.environ["USER_TABLE"])
-        # Get top 10 scores with ID
-        response = await table.scan(
-            ProjectionExpression="id, score",
-            Limit=10,
-            ScanIndexForward=False,
-            ConsistentRead=True,
-        )
+        response = await dynamodb.scan(Table=table)
+        items = response.get("Items", [])
 
-        scores = response["Items"]
+        while "LastEvaluatedKey" in response:
+            response = await dynamodb.scan(
+                Table=table, ExclusiveStartKey=response["LastEvaluatedKey"]
+            )
+            items.extend(response.get("Items", []))
 
-        message.reply_text(json.dumps(scores))
+        users_with_scores = [
+            {"user": item["user"]["S"], "score": int(item["score"]["N"])}
+            for item in items
+        ]
+
+        top_users = sorted(users_with_scores, key=lambda x: x["score"], reverse=True)[
+            :10
+        ]  # noqa
+
+        message.reply_text(json.dumps(top_users))
 
 
 application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, on_message))
