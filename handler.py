@@ -193,7 +193,7 @@ async def leaderboard(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
     async with boto3.resource("dynamodb") as dynamodb:
         result = []
         table = await dynamodb.Table(os.environ["USER_TABLE"])
-        scan_kwargs = {"ProjectionExpression": "user, score"}
+        scan_kwargs = {"ProjectionExpression": "score"}
         while True:
             response = await table.scan(**scan_kwargs)
             result.extend(response["Items"])
