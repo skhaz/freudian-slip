@@ -34,8 +34,6 @@ application = (
     .build()
 )
 
-print(">>> TOKEN", os.environ.get("TELEGRAM_TOKEN", ""))
-
 boto3 = aioboto3.Session()
 
 logging.getLogger("httpx").setLevel(logging.WARNING)
@@ -196,7 +194,6 @@ class DecimalEncoder(json.JSONEncoder):
 
 
 async def leaderboard(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    print(">>> leaderboard", update.message)
     message = update.message
     if not message:
         return
@@ -223,9 +220,8 @@ async def leaderboard(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
             for item in sorted(items, key=lambda i: int(i["score"]), reverse=True)[:10]  # fmt: skip
         ]
 
-        print(">>> top_users", top_users)
-
-        await message.reply_text("\n".join(top_users), parse_mode=ParseMode.MARKDOWN_V2)
+        await message.reply_text("ok")
+        # await message.reply_text("\n".join(top_users), parse_mode=ParseMode.MARKDOWN_V2)
 
 
 application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, on_message))
