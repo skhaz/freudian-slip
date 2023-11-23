@@ -34,6 +34,8 @@ application = (
     .build()
 )
 
+print(">>> TOKEN", os.environ.get("TELEGRAM_TOKEN", ""))
+
 boto3 = aioboto3.Session()
 
 logging.getLogger("httpx").setLevel(logging.WARNING)
@@ -96,11 +98,6 @@ def telegram(event: APIGatewayProxyEventV1, context: Context):
         event["headers"].get("X-Telegram-Bot-Api-Secret-Token"),
         os.environ["SECRET"],
     ):
-        print(
-            ">>> Unauthorized",
-            event["headers"].get("X-Telegram-Bot-Api-Secret-Token"),
-            os.environ["SECRET"],
-        )
         return {
             "statusCode": 401,
         }
