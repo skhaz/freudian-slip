@@ -220,8 +220,7 @@ async def leaderboard(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
             for item in sorted(items, key=lambda i: int(i["score"]), reverse=True)[:10]  # fmt: skip
         ]
 
-        await message.reply_text("ok")
-        # await message.reply_text("\n".join(top_users), parse_mode=ParseMode.MARKDOWN_V2)
+        await message.reply_text("\n".join(top_users), parse_mode=ParseMode.MARKDOWN_V2)
 
 
 application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, on_message))
