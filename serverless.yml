@@ -13,7 +13,7 @@ provider:
 
 resources:
   Resources:
-    UserTable:
+    UserWordTable:
       Type: AWS::DynamoDB::Table
       Properties:
         AttributeDefinitions:
@@ -23,7 +23,27 @@ resources:
           - AttributeName: id
             KeyType: HASH
         BillingMode: PAY_PER_REQUEST
-    GlobalTable:
+    UserNumberTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+    GlobalWordTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+    GlobalNumberTable:
       Type: AWS::DynamoDB::Table
       Properties:
         AttributeDefinitions:
@@ -45,16 +65,23 @@ functions:
           - dynamodb:Scan
           - dynamodb:UpdateItem
         Resource:
-          - Fn::GetAtt: [UserTable, Arn]
-          - Fn::GetAtt: [GlobalTable, Arn]
+          - Fn::GetAtt: [UserNumberTable, Arn]
+          - Fn::GetAtt: [GlobalNumberTable, Arn]
+          - Fn::GetAtt: [UserWordTable, Arn]
+          - Fn::GetAtt: [GlobalWordTable, Arn]
     environment:
-      SECRET: ${env:SECRET}
       TELEGRAM_TOKEN: ${env:TELEGRAM_TOKEN}
+      SECRET: ${env:SECRET}
+      NUMBER: ${env:NUMBER}
       WORD: ${env:WORD}
-      USER_TABLE:
-        Ref: UserTable
-      GLOBAL_TABLE:
-        Ref: GlobalTable
+      USER_NUMBER_TABLE:
+        Ref: UserNumberTable
+      GLOBAL_NUMBER_TABLE:
+        Ref: GlobalNumberTable
+      USER_WORD_TABLE:
+        Ref: UserWordTable
+      GLOBAL_WORLD_TABLE:
+        Ref: GlobalWordTable
 
 plugins:
   - serverless-iam-roles-per-function

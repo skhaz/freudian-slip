@@ -3,8 +3,11 @@ import asyncio
 import json
 import logging
 import os
+import re
 from typing import Dict
+from typing import List
 from typing import Optional
+from typing import Tuple
 from typing import TypedDict
 
 import aioboto3
@@ -42,8 +45,12 @@ logger = logging.getLogger(__name__)
 
 word = os.environ["WORD"]
 
+number = int(os.environ["NUMBER"])
 
-def find_seq(word, message):
+pattern = re.compile(r"\d+")
+
+
+def find_sequence(word: str, message: str) -> List[int]:
     indices = []
     word_index = 0
     current_index = 0
@@ -64,6 +71,14 @@ def find_seq(word, message):
         current_index += len(w) + 1
 
     return indices if word_index == len(word) else []
+
+
+def find_numbers(message: str) -> Tuple[List[int], int]:
+    numbers = pattern.findall(message)
+
+    total = sum(map(int, numbers))
+
+    return numbers, total
 
 
 async def main(event: APIGatewayProxyEventV1):
@@ -122,7 +137,7 @@ async def on_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
 
     text = escape_markdown(text.lower(), version=2)
 
-    indexes = find_seq(word, text)
+    indexes = find_sequence(word, text)
 
     is_same_length = len(indexes) == len(word)
 
@@ -139,8 +154,8 @@ async def on_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
         name = user.username or user.first_name
 
         async with boto3.resource("dynamodb") as dynamodb:
-            table = await dynamodb.Table(os.environ["USER_TABLE"])
-            global_table = await dynamodb.Table(os.environ["GLOBAL_TABLE"])
+            table = await dynamodb.Table(os.environ["USER_WORD_TABLE"])
+            global_table = await dynamodb.Table(os.environ["GLOBAL_WORD_TABLE"])
 
             [response, global_response] = await asyncio.gather(
                 table.update_item(
@@ -182,15 +197,9 @@ async def on_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
                 "\n\n".join(messages), parse_mode=ParseMode.MARKDOWN_V2
             )
 
-
-import decimal
-
-
-class DecimalEncoder(json.JSONEncoder):
-    def default(self, o):
-        if isinstance(o, decimal.Decimal):
-            return str(o)
-        return super().default(o)
+    numbers, total = find_numbers(text)
+    if total == number:
+        await message.reply_text(f"{' + '.join(str(i) for i in numbers)} = {total}")
 
 
 async def leaderboard(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -199,7 +208,7 @@ async def leaderboard(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
         return
 
     async with boto3.resource("dynamodb") as dynamodb:
-        table = await dynamodb.Table(os.environ["USER_TABLE"])
+        table = await dynamodb.Table(os.environ["USER_WORD_TABLE"])
 
         scan_kwargs = {
             "ExpressionAttributeNames": {"#n": "name"},

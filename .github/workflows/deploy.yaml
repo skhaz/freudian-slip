@@ -34,6 +34,7 @@ jobs:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           SECRET: ${{ secrets.SECRET }}
           WORD: ${{ secrets.WORD }}
+          NUMBER: ${{ secrets.NUMBER }}
 
       - name: Set Webhook
         run: |
@@ -46,3 +47,4 @@ jobs:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           SECRET: ${{ secrets.SECRET }}
           WORD: ${{ secrets.WORD }}
+          NUMBER: ${{ secrets.NUMBER }}
