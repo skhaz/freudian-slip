@@ -170,6 +170,8 @@ async def on_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
 
     mention = f"[{user.username}](tg://user?id={user.id})"
 
+    key = {"id": str(user.id)}
+
     is_same_length = len(indexes) == len(word)
 
     if is_same_length:
@@ -181,7 +183,6 @@ async def on_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
         for i, index in enumerate(indexes):
             letters.insert((index + 2) + i, "*")
 
-        key = {"id": str(user.id)}
         name = user.username or user.first_name
         score, global_score = await store_and_compute(key, name, Kind.WORD)
 
