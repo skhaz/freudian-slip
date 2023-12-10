@@ -205,7 +205,7 @@ async def on_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
         score, global_score = await store_and_compute(key, name, Kind.NUMBER)
 
         messages = [
-            f"{' + '.join(str(i) for i in numbers)} = {total}",
+            f"{' \+ '.join(str(i) for i in numbers)} = {total}",
             f"{mention} has already made {number} {score} times\!",
         ]
 
