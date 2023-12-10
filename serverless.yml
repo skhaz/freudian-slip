@@ -1,4 +1,4 @@
-service: hidden-word-detector
+service: freudian-slip
 
 frameworkVersion: "3"
 
@@ -80,7 +80,7 @@ functions:
         Ref: GlobalNumberTable
       USER_WORD_TABLE:
         Ref: UserWordTable
-      GLOBAL_WORLD_TABLE:
+      GLOBAL_WORD_TABLE:
         Ref: GlobalWordTable
 
 plugins:
