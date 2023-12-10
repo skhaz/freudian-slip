@@ -203,9 +203,9 @@ async def on_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
     numbers, total = find_numbers(text)
     if total == number:
         score, global_score = await store_and_compute(key, name, Kind.NUMBER)
-
+        formula = " \+ ".join(str(i) for i in numbers)
         messages = [
-            f"{' \+ '.join(str(i) for i in numbers)} = {total}",
+            f"{formula} = {total}",
             f"{mention} has already made {number} {score} times\!",
         ]
 
