@@ -172,6 +172,8 @@ async def on_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
 
     key = {"id": str(user.id)}
 
+    name = user.username or user.first_name
+
     is_same_length = len(indexes) == len(word)
 
     if is_same_length:
@@ -183,7 +185,6 @@ async def on_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
         for i, index in enumerate(indexes):
             letters.insert((index + 2) + i, "*")
 
-        name = user.username or user.first_name
         score, global_score = await store_and_compute(key, name, Kind.WORD)
 
         caption = [
