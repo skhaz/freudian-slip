@@ -6,4 +6,5 @@ mypy==1.7.1
 pur==7.3.1
 ruff==0.1.6
 
+types-aioboto3==12.1.0
 jmespath==1.0.1
